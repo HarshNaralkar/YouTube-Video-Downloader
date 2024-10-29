@@ -7,7 +7,7 @@ from datetime import datetime
 import os
 import platform
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder=".")
 def get_download_folder():
     system_name = platform.system()
     
