@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Video Downloader</title>
+    <style>
+        /* Existing CSS */
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .containerbody {
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+            --color: rgba(114, 114, 114, 0.3);
+            background-color: #191a1a;
+            background-image: linear-gradient(0deg, transparent 24%, var(--color) 25%, var(--color) 26%, transparent 27%,transparent 74%, var(--color) 75%, var(--color) 76%, transparent 77%,transparent),
+                linear-gradient(90deg, transparent 24%, var(--color) 25%, var(--color) 26%, transparent 27%,transparent 74%, var(--color) 75%, var(--color) 76%, transparent 77%,transparent);
+            background-size: 55px 55px;
+            position: relative;
+        }
+
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .input {
+            width: 300px;
+            background-color: #1a1a1a;
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            outline: none;
+            color: white;
+            animation: rotateShadow 2s infinite linear;
+        }
+
+        .input:focus {
+            animation: rotateShadow 2s infinite linear;
+        }
+
+        @keyframes rotateShadow {
+            0% { box-shadow: -2px -2px 8px 1px #aa00ff, 2px 2px 8px 1px #3700ff; }
+            25% { box-shadow: -2px 2px 8px 1px #aa00ff, 2px -2px 8px 1px #3700ff; }
+            50% { box-shadow: 2px 2px 8px 1px #aa00ff, -2px -2px 8px 1px #3700ff; }
+            75% { box-shadow: 2px -2px 8px 1px #aa00ff, -2px 2px 8px 1px #3700ff; }
+            100% { box-shadow: -2px -2px 8px 1px #aa00ff, 2px 2px 8px 1px #3700ff; }
+        }
+
+        .button {
+            display: inline-block;
+            border-radius: 7px;
+            border: none;
+            background: #1875FF;
+            color: white;
+            font-family: inherit;
+            text-align: center;
+            font-size: 13px;
+            box-shadow: 0px 14px 56px -11px #1875FF;
+            width: 10em;
+            padding: 1em;
+            transition: all 0.4s;
+            cursor: pointer;
+        }
+
+        .button span {
+            cursor: pointer;
+            display: inline-block;
+            position: relative;
+            transition: 0.4s;
+        }
+
+        .button span:after {
+            content: ' for free';
+            position: absolute;
+            opacity: 0;
+            top: 0;
+            right: -20px;
+            transition: 0.7s;
+        }
+
+        .button:hover span {
+            padding-right: 3.55em;
+        }
+
+        .button:hover span:after {
+            opacity: 1;
+            right: 0;
+        }
+
+        .textWrapper {
+        display: none; /* Hide initially */
+        height: fit-content;
+        min-width: 3rem;
+        width: fit-content;
+        font-size: 2rem;
+        font-weight: 800;
+        letter-spacing: 0.25ch;
+        position: relative; /* Changed from relative to absolute */
+        z-index: 0;
+        color: rgb(244, 248, 250);
+        left: 50%; /* Move it to the center of the container */
+        transform: translateX(-50%); /* Adjust its position to be centered */
+        }
+
+
+        .invertbox {
+        position: absolute;
+        height: 100%;
+        aspect-ratio: 1/1;
+        left: 0;
+        top: 0;
+        border-radius: 20%;
+        background-color: rgba(255, 255, 255, 0.1);
+        backdrop-filter: invert(100%);
+        animation: move 2s ease-in-out infinite;
+        }
+
+        @keyframes move {
+        50% {
+            left: calc(100% - 3rem);
+        }
+        }
+
+        .popup {
+            display: none;
+            background-color: #1a1a1a;
+            border: 2px solid #3700ff;
+            border-radius: 10px;
+            padding: 20px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            text-align: center;
+            z-index: 999;
+        }
+
+        .popup.active {
+            display: block;
+        }
+
+        .popup h2 {
+            margin: 0;
+            color: #aa00ff;
+        }
+
+        .popup button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #1875FF;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0px 14px 56px -11px #1875FF;
+        }
+
+        .loading-active .textWrapper {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="containerbody">
+        <h1>YouTube Video Downloader</h1>
+        <form id="downloadForm" class="container" action="download.php" method="POST">
+            <input type="text" name="videoUrl" class="input" placeholder="Enter video URL">
+            <button type="submit" class="button"><span>Download</span></button>
+        </form>
+
+        <div class="popup" id="popup">
+            <h2>Download Complete!</h2>
+            <p>Your video has been successfully downloaded.</p>
+            <button onclick="closePopup()">Close</button>
+        </div>
+
+        <!-- Loader -->
+        <div class="textWrapper" id="loadingText">
+            <p>Loading...</p>
+            <div class="invertbox"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('downloadForm').onsubmit = function(e) {
+            e.preventDefault();
+            const form = document.getElementById('downloadForm');
+            const loadingText = document.getElementById('loadingText');
+            const formData = new FormData(form);
+            startAnimation();
+            loadingText.classList.add('loading-active');
+            fetch('Downloader.php', {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+            .then(data => {
+                stopAnimation();
+                loadingText.classList.remove('loading-active');
+                if (data.status === 'success') {
+                    showPopup();
+                } else {
+                    alert(data.message);
+                }
+            }).catch(error => {
+                stopAnimation();
+                loadingText.classList.remove('loading-active');
+                console.error('Error:', error);
+            });
+        }
+
+        function showPopup() {
+            document.querySelector('.textWrapper').classList.remove('animate');
+            document.getElementById('popup').classList.add('active');
+        }
+
+        function closePopup() {
+            document.getElementById('popup').classList.remove('active');
+        }
+        function startAnimation() {
+            document.getElementById('loadingText').style.display = 'block';
+            document.querySelector('.textWrapper').classList.add('animate'); // Add animation class
+        }
+    
+        // Function to stop loading animation
+        function stopAnimation() {
+            document.getElementById('loadingText').style.display = 'none';
+            document.querySelector('.textWrapper').classList.remove('animate'); // Remove animation class
+        }
+
+    </script>
+</body>
+</html>
