@@ -203,10 +203,6 @@ body {
 
 
 # Initialize session state variables if they don't exist
-if 'download_complete' not in st.session_state:
-    st.session_state.download_complete = False
-if 'popup_start_time' not in st.session_state:
-    st.session_state.popup_start_time = None
 
 
 st.title("YouTube Video Downloader")
@@ -217,13 +213,8 @@ col1, col2 = st.columns(2)
 with col1:
     if st.button("Download Video"):
         if video_url:
-            st.session_state.download_complete = False
             with st.spinner("Downloading..."):
                 output_file = download_video(video_url)
-                if output_file:
-                    st.session_state.download_complete = True 
-                    st.session_state.popup_start_time = time.time()
-
         else:
             st.error("Please enter a valid URL.")
 
@@ -237,19 +228,3 @@ with col2:
 
 
 
-if st.session_state.download_complete:
-    st.markdown(
-        """
-        <div style="background-color: #1a1a1a; padding: 20px; border-radius: 10px; text-align: center; border: 2px solid #3700ff;">
-            <h2 style="color: #aa00ff;">Download Complete!</h2>
-            <p>Your video has been successfully downloaded.</p>
-            <p>This message will disappear after 10 seconds.</p>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    # Check if 10 seconds have passed
-    if time.time() - st.session_state.popup_start_time > 10:
-        st.session_state.download_complete = False
-        st.experimental_rerun()  # Rerun the app to hide the pop-up
